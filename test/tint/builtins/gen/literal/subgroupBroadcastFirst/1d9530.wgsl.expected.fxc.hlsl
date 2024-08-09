@@ -1,4 +1,4 @@
-SKIP: Wave ops not support before SM6.0
+SKIP: Wave ops not supported before SM 6.0
 
 RWByteAddressBuffer prevent_dce : register(u0);
 
