@@ -2,7 +2,7 @@
 
 using namespace metal;
 int quadBroadcast_0639ea() {
-  int res = quad_broadcast(1);
+  int res = quad_broadcast(1,ushort(1u));
   return res;
 }
 
