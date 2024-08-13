@@ -3041,17 +3041,18 @@ bool ASTPrinter::EmitSubgroupShuffleBuiltinCall(StringStream& out,
     if (!EmitExpression(out, expr->args[0])) {
         return false;
     }
-    out << ", (";
+
+    out << ", (WaveGetLaneIndex() ";
 
     switch (builtin->Fn()) {
         case wgsl::BuiltinFn::kSubgroupShuffleXor:
-            out << "WaveGetLaneIndex() ^ ";
+            out << "^ ";
             break;
         case wgsl::BuiltinFn::kSubgroupShuffleUp:
-            out << "WaveGetLaneIndex() - ";
+            out << "- ";
             break;
         case wgsl::BuiltinFn::kSubgroupShuffleDown:
-            out << "WaveGetLaneIndex() + ";
+            out << "+ ";
             break;
         default:
             TINT_UNREACHABLE();

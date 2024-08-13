@@ -295,7 +295,7 @@ class ASTPrinter : public tint::TextGenerator {
                                                    const ast::CallExpression* expr,
                                                    const sem::BuiltinFn* builtin);
     /// Handles generating a call to the `WaveReadLaneAt` intrinsic for subgroupShuffleXor,
-    /// subgroupShuffleup and subgroupShuffledown
+    /// subgroupShuffleUp and subgroupShuffleDown
     /// @param out the output stream
     /// @param expr the call expression
     /// @param builtin the semantic information for the builtin
