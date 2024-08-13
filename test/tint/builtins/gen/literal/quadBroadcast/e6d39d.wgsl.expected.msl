@@ -2,7 +2,7 @@
 
 using namespace metal;
 float quadBroadcast_e6d39d() {
-  float res = quad_broadcast(1.0f,ushort(1));
+  float res = quad_broadcast(1.0f,1);
   return res;
 }
 

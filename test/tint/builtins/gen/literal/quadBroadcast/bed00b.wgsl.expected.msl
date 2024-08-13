@@ -2,7 +2,7 @@
 
 using namespace metal;
 int4 quadBroadcast_bed00b() {
-  int4 res = quad_broadcast(int4(1),ushort(1u));
+  int4 res = quad_broadcast(int4(1),1u);
   return res;
 }
 

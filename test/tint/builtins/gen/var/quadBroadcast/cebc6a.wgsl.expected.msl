@@ -3,7 +3,7 @@
 using namespace metal;
 half quadBroadcast_cebc6a() {
   half arg_0 = 1.0h;
-  half res = quad_broadcast(arg_0,ushort(1u));
+  half res = quad_broadcast(arg_0,1u);
   return res;
 }
 
