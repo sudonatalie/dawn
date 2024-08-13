@@ -972,11 +972,16 @@ bool ASTPrinter::EmitBuiltinCall(StringStream& out,
         }
 
         case wgsl::BuiltinFn::kQuadBroadcast: {
+            // The lane argument is ushort.
             out << "quad_broadcast(";
             if (!EmitExpression(out, expr->args[0])) {
                 return false;
             }
-            out << ")";
+            out << ",ushort(";
+            if (!EmitExpression(out, expr->args[1])) {
+                return false;
+            }
+            out << "))";
             return true;
         }
 
