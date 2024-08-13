@@ -985,6 +985,33 @@ bool ASTPrinter::EmitBuiltinCall(StringStream& out,
             return true;
         }
 
+        case wgsl::BuiltinFn::kQuadSwapX: {
+            out << "quad_shuffle(";
+            if (!EmitExpression(out, expr->args[0])) {
+                return false;
+            }
+            out << ", thread_index_in_quad_group ^ 0x1)";
+            return true;
+        }
+
+        case wgsl::BuiltinFn::kQuadSwapY: {
+            out << "quad_shuffle(";
+            if (!EmitExpression(out, expr->args[0])) {
+                return false;
+            }
+            out << ", thread_index_in_quad_group ^ 0x10)";
+            return true;
+        }
+
+        case wgsl::BuiltinFn::kQuadSwapDiagonal: {
+            out << "quad_shuffle(";
+            if (!EmitExpression(out, expr->args[0])) {
+                return false;
+            }
+            out << ", thread_index_in_quad_group ^ 0x11)";
+            return true;
+        }
+
         default:
             break;
     }

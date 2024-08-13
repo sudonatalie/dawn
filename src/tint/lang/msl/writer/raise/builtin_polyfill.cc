@@ -109,6 +109,9 @@ struct State {
                     case core::BuiltinFn::kModf:
                     case core::BuiltinFn::kPack2X16Float:
                     case core::BuiltinFn::kQuantizeToF16:
+                    case core::BuiltinFn::kQuadSwapX:
+                    case core::BuiltinFn::kQuadSwapY:
+                    case core::BuiltinFn::kQuadSwapDiagonal:
                     case core::BuiltinFn::kSign:
                     case core::BuiltinFn::kTextureDimensions:
                     case core::BuiltinFn::kTextureGather:
@@ -196,6 +199,11 @@ struct State {
                     break;
                 case core::BuiltinFn::kQuantizeToF16:
                     QuantizeToF16(builtin);
+                    break;
+                case core::BuiltinFn::kQuadSwapX:
+                case core::BuiltinFn::kQuadSwapY:
+                case core::BuiltinFn::kQuadSwapDiagonal:
+                    QuadSwap(builtin);
                     break;
                 case core::BuiltinFn::kSign:
                     Sign(builtin);
@@ -928,6 +936,11 @@ struct State {
             b.ConvertWithResult(builtin->DetachResult(), bitcast);
         });
         builtin->Destroy();
+    }
+
+    /// Polyfill a quadSwapX, quadSwapY and quadSwapDiagonal calls.
+    /// @param builtin the builtin call instruction
+    void QuadSwap(core::ir::CoreBuiltinCall* builtin) {
     }
 };
 
