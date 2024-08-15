@@ -40,9 +40,9 @@ namespace tint::msl::writer {
 /// +------------------+------------------------------------------------------------------+
 /// |       WGSL       |                               MSL                                |
 /// +------------------+------------------------------------------------------------------+
-/// | quadSwapX        | quad_shuffle with quad_lane_id=thread_index_in_quad_group ^ 0x1  |
-/// | quadSwapY        | quad_shuffle with quad_lane_id=thread_index_in_quad_group ^ 0x10 |
-/// | quadSwapDiagonal | quad_shuffle with quad_lane_id=thread_index_in_quad_group ^ 0x11 |
+/// | quadSwapX        | quad_shuffle with quad_lane_id=thread_index_in_quad_group ^ 0b1  |
+/// | quadSwapY        | quad_shuffle with quad_lane_id=thread_index_in_quad_group ^ 0b10 |
+/// | quadSwapDiagonal | quad_shuffle with quad_lane_id=thread_index_in_quad_group ^ 0b11 |
 /// +------------------+------------------------------------------------------------------+
 ///
 /// @note Depends on the following transforms to have been run first:

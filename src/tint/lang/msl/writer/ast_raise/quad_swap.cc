@@ -137,21 +137,21 @@ struct QuadSwap::State {
             // +------------------+------+
             // |       func       | rhs  |
             // +------------------+------+
-            // | quadSwapX        | 0x1  |
-            // | quadSwapY        | 0x10 |
-            // | quadSwapDiagonal | 0x11 |
+            // | quadSwapX        | 0b1  |
+            // | quadSwapY        | 0b10 |
+            // | quadSwapDiagonal | 0b11 |
             // +------------------+------+
             auto* expr = b.Param("e", CreateASTTypeFor(ctx, type));
             core::u32 rhs;
             switch (func) {
                 case wgsl::BuiltinFn::kQuadSwapX:
-                    rhs = 0x1;
+                    rhs = 0b1;
                     break;
                 case wgsl::BuiltinFn::kQuadSwapY:
-                    rhs = 0x10;
+                    rhs = 0b10;
                     break;
                 case wgsl::BuiltinFn::kQuadSwapDiagonal:
-                    rhs = 0x11;
+                    rhs = 0b11;
                     break;
                 default:
                     TINT_UNREACHABLE() << "unsupported builtin function";

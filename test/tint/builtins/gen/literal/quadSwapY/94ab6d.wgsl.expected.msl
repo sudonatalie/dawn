@@ -7,7 +7,7 @@ struct tint_private_vars_struct {
 
 
 int tint_msl_quad_swap(int e, thread tint_private_vars_struct* const tint_private_vars) {
-  return quad_shuffle(e,((*(tint_private_vars)).tint_msl_thread_index_in_quadgroup ^ 16u));
+  return quad_shuffle(e,((*(tint_private_vars)).tint_msl_thread_index_in_quadgroup ^ 2u));
 }
 
 int quadSwapY_94ab6d(thread tint_private_vars_struct* const tint_private_vars) {

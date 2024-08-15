@@ -144,7 +144,7 @@ fn tint_msl_quad_shuffle(data : i32, quad_lane_id : u32) -> i32
 var<private> tint_msl_thread_index_in_quadgroup : u32;
 
 fn tint_msl_quad_swap(e : i32) -> i32 {
-  return tint_msl_quad_shuffle(e, (tint_msl_thread_index_in_quadgroup ^ 16u));
+  return tint_msl_quad_shuffle(e, (tint_msl_thread_index_in_quadgroup ^ 2u));
 }
 
 @compute @workgroup_size(64)
@@ -181,7 +181,7 @@ fn tint_msl_quad_shuffle(data : i32, quad_lane_id : u32) -> i32
 var<private> tint_msl_thread_index_in_quadgroup : u32;
 
 fn tint_msl_quad_swap(e : i32) -> i32 {
-  return tint_msl_quad_shuffle(e, (tint_msl_thread_index_in_quadgroup ^ 17u));
+  return tint_msl_quad_shuffle(e, (tint_msl_thread_index_in_quadgroup ^ 3u));
 }
 
 @compute @workgroup_size(64)
