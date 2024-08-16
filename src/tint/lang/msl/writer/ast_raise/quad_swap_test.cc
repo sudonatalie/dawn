@@ -59,7 +59,7 @@ fn tint_msl_quad_shuffle(data : f32, quad_lane_id : u32) -> f32
 
 var<private> tint_msl_thread_index_in_quadgroup : u32;
 
-fn tint_msl_quad_swap(e : f32) -> f32 {
+fn tint_msl_quadSwapX(e : f32) -> f32 {
   return tint_msl_quad_shuffle(e, (tint_msl_thread_index_in_quadgroup ^ 1u));
 }
 
@@ -68,7 +68,7 @@ fn foo(@internal(thread_index_in_quadgroup) tint_thread_index_in_quadgroup : u32
   {
     tint_msl_thread_index_in_quadgroup = tint_thread_index_in_quadgroup;
   }
-  let x : f32 = tint_msl_quad_swap(1.0f);
+  let x : f32 = tint_msl_quadSwapX(1.0f);
 }
 )";
 
@@ -101,13 +101,13 @@ fn tint_msl_quad_shuffle(data : vec4<u32>, quad_lane_id : u32) -> vec4<u32>
 
 var<private> tint_msl_thread_index_in_quadgroup : u32;
 
-fn tint_msl_quad_swap(e : vec4<u32>) -> vec4<u32> {
+fn tint_msl_quadSwapX(e : vec4<u32>) -> vec4<u32> {
   return tint_msl_quad_shuffle(e, (tint_msl_thread_index_in_quadgroup ^ 1u));
 }
 
 fn bar() -> vec4u {
   let expr = vec4u(1u, 1u, 1u, 1u);
-  return tint_msl_quad_swap(expr);
+  return tint_msl_quadSwapX(expr);
 }
 
 @compute @workgroup_size(64)
@@ -143,7 +143,7 @@ fn tint_msl_quad_shuffle(data : i32, quad_lane_id : u32) -> i32
 
 var<private> tint_msl_thread_index_in_quadgroup : u32;
 
-fn tint_msl_quad_swap(e : i32) -> i32 {
+fn tint_msl_quadSwapY(e : i32) -> i32 {
   return tint_msl_quad_shuffle(e, (tint_msl_thread_index_in_quadgroup ^ 2u));
 }
 
@@ -152,7 +152,7 @@ fn foo(@internal(thread_index_in_quadgroup) tint_thread_index_in_quadgroup : u32
   {
     tint_msl_thread_index_in_quadgroup = tint_thread_index_in_quadgroup;
   }
-  let x : i32 = tint_msl_quad_swap(1i);
+  let x : i32 = tint_msl_quadSwapY(1i);
 }
 )";
 
@@ -180,7 +180,7 @@ fn tint_msl_quad_shuffle(data : i32, quad_lane_id : u32) -> i32
 
 var<private> tint_msl_thread_index_in_quadgroup : u32;
 
-fn tint_msl_quad_swap(e : i32) -> i32 {
+fn tint_msl_quadSwapDiagonal(e : i32) -> i32 {
   return tint_msl_quad_shuffle(e, (tint_msl_thread_index_in_quadgroup ^ 3u));
 }
 
@@ -189,7 +189,181 @@ fn foo(@internal(thread_index_in_quadgroup) tint_thread_index_in_quadgroup : u32
   {
     tint_msl_thread_index_in_quadgroup = tint_thread_index_in_quadgroup;
   }
-  let x : i32 = tint_msl_quad_swap(1i);
+  let x : i32 = tint_msl_quadSwapDiagonal(1i);
+}
+)";
+
+    auto got = Run<QuadSwap>(src);
+
+    EXPECT_EQ(expect, str(got));
+}
+
+TEST_F(QuadSwapTest, MultipleCallsSameFunction) {
+    auto* src = R"(
+enable subgroups;
+
+@compute @workgroup_size(64)
+fn foo() {
+  let x: u32 = quadSwapX(1u);
+  let y: u32 = quadSwapX(1u);
+}
+)";
+
+    auto* expect =
+        R"(
+enable subgroups;
+
+@internal(quad_shuffle) @internal(disable_validation__function_has_no_body)
+fn tint_msl_quad_shuffle(data : u32, quad_lane_id : u32) -> u32
+
+var<private> tint_msl_thread_index_in_quadgroup : u32;
+
+fn tint_msl_quadSwapX(e : u32) -> u32 {
+  return tint_msl_quad_shuffle(e, (tint_msl_thread_index_in_quadgroup ^ 1u));
+}
+
+@compute @workgroup_size(64)
+fn foo(@internal(thread_index_in_quadgroup) tint_thread_index_in_quadgroup : u32) {
+  {
+    tint_msl_thread_index_in_quadgroup = tint_thread_index_in_quadgroup;
+  }
+  let x : u32 = tint_msl_quadSwapX(1u);
+  let y : u32 = tint_msl_quadSwapX(1u);
+}
+)";
+
+    auto got = Run<QuadSwap>(src);
+
+    EXPECT_EQ(expect, str(got));
+}
+
+TEST_F(QuadSwapTest, MultipleCallsSameFunctionDifferentType) {
+    auto* src = R"(
+enable subgroups;
+
+@compute @workgroup_size(64)
+fn foo() {
+  let x: u32 = quadSwapX(1u);
+  let y: i32 = quadSwapX(1i);
+}
+)";
+
+    auto* expect =
+        R"(
+enable subgroups;
+
+@internal(quad_shuffle) @internal(disable_validation__function_has_no_body)
+fn tint_msl_quad_shuffle(data : u32, quad_lane_id : u32) -> u32
+
+var<private> tint_msl_thread_index_in_quadgroup : u32;
+
+fn tint_msl_quadSwapX(e : u32) -> u32 {
+  return tint_msl_quad_shuffle(e, (tint_msl_thread_index_in_quadgroup ^ 1u));
+}
+
+@internal(quad_shuffle) @internal(disable_validation__function_has_no_body)
+fn tint_msl_quad_shuffle_1(data : i32, quad_lane_id : u32) -> i32
+
+fn tint_msl_quadSwapX_1(e : i32) -> i32 {
+  return tint_msl_quad_shuffle_1(e, (tint_msl_thread_index_in_quadgroup ^ 1u));
+}
+
+@compute @workgroup_size(64)
+fn foo(@internal(thread_index_in_quadgroup) tint_thread_index_in_quadgroup : u32) {
+  {
+    tint_msl_thread_index_in_quadgroup = tint_thread_index_in_quadgroup;
+  }
+  let x : u32 = tint_msl_quadSwapX(1u);
+  let y : i32 = tint_msl_quadSwapX_1(1i);
+}
+)";
+
+    auto got = Run<QuadSwap>(src);
+
+    EXPECT_EQ(expect, str(got));
+}
+
+TEST_F(QuadSwapTest, MultipleCallsSameTypeDifferentFunction) {
+    auto* src = R"(
+enable subgroups;
+
+@compute @workgroup_size(64)
+fn foo() {
+  let x: u32 = quadSwapX(1u);
+  let y: u32 = quadSwapY(1u);
+}
+)";
+
+    auto* expect =
+        R"(
+enable subgroups;
+
+@internal(quad_shuffle) @internal(disable_validation__function_has_no_body)
+fn tint_msl_quad_shuffle(data : u32, quad_lane_id : u32) -> u32
+
+var<private> tint_msl_thread_index_in_quadgroup : u32;
+
+fn tint_msl_quadSwapX(e : u32) -> u32 {
+  return tint_msl_quad_shuffle(e, (tint_msl_thread_index_in_quadgroup ^ 1u));
+}
+
+fn tint_msl_quadSwapY(e : u32) -> u32 {
+  return tint_msl_quad_shuffle(e, (tint_msl_thread_index_in_quadgroup ^ 2u));
+}
+
+@compute @workgroup_size(64)
+fn foo(@internal(thread_index_in_quadgroup) tint_thread_index_in_quadgroup : u32) {
+  {
+    tint_msl_thread_index_in_quadgroup = tint_thread_index_in_quadgroup;
+  }
+  let x : u32 = tint_msl_quadSwapX(1u);
+  let y : u32 = tint_msl_quadSwapY(1u);
+}
+)";
+
+    auto got = Run<QuadSwap>(src);
+
+    EXPECT_EQ(expect, str(got));
+}
+
+TEST_F(QuadSwapTest, MultipleCallsDifferentTypeDifferentFunction) {
+    auto* src = R"(
+enable subgroups;
+
+@compute @workgroup_size(64)
+fn foo() {
+  let x: i32 = quadSwapX(1i);
+  let y: u32 = quadSwapY(1u);
+}
+)";
+
+    auto* expect =
+        R"(
+enable subgroups;
+
+@internal(quad_shuffle) @internal(disable_validation__function_has_no_body)
+fn tint_msl_quad_shuffle(data : i32, quad_lane_id : u32) -> i32
+
+var<private> tint_msl_thread_index_in_quadgroup : u32;
+
+fn tint_msl_quadSwapX(e : i32) -> i32 {
+  return tint_msl_quad_shuffle(e, (tint_msl_thread_index_in_quadgroup ^ 1u));
+}
+
+@internal(quad_shuffle) @internal(disable_validation__function_has_no_body)
+fn tint_msl_quad_shuffle_1(data : u32, quad_lane_id : u32) -> u32
+
+fn tint_msl_quadSwapY(e : u32) -> u32 {
+  return tint_msl_quad_shuffle_1(e, (tint_msl_thread_index_in_quadgroup ^ 2u));
+}
+
+@compute @workgroup_size(64)
+fn foo(@internal(thread_index_in_quadgroup) tint_thread_index_in_quadgroup : u32) {
+  {
+    tint_msl_thread_index_in_quadgroup = tint_thread_index_in_quadgroup;
+  }
+  let x : i32 = tint_msl_quadSwapX(1i);
+  let y : u32 = tint_msl_quadSwapY(1u);
 }
 )";
 

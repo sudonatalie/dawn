@@ -32,6 +32,7 @@
 #include "src/tint/lang/core/builtin_fn.h"
 #include "src/tint/lang/core/fluent_types.h"
 #include "src/tint/lang/wgsl/ast/transform/transform.h"
+#include "src/tint/lang/wgsl/builtin_fn.h"
 #include "src/tint/lang/wgsl/program/clone_context.h"
 #include "src/tint/lang/wgsl/program/program_builder.h"
 #include "src/tint/lang/wgsl/resolver/resolve.h"
@@ -57,8 +58,11 @@ struct QuadSwap::State {
     /// The clone context
     program::CloneContext ctx = {&b, &src, /* auto_clone_symbols */ true};
 
-    /// The set of names for the tint_quad_swap helper functions.
+    /// The set of names for the tint_msl_quadSwap* helper functions.
     Hashmap<std::pair<wgsl::BuiltinFn, const core::type::Type*>, Symbol, 8> quad_swap_helpers;
+
+    /// The set of names for the tint_msl_quad_shuffle* intrinsic functions.
+    Hashmap<const core::type::Type*, Symbol, 8> quad_shuffle_intrinsics;
 
     /// The name of the `tint_msl_thread_index_in_quadgroup` global variable.
     Symbol thread_index_in_quadgroup{};
@@ -108,30 +112,17 @@ struct QuadSwap::State {
         return resolver::Resolve(b);
     }
 
-    /// Get (or create) the `tint_msl_quad_swap` helper function.
+    /// Get or create the appropriate `tint_msl_quadSwap*` helper function for the given builtin
+    /// function and return type.
     /// @returns the name of the helper function
     Symbol GetHelper(wgsl::BuiltinFn func, const core::type::Type* type) {
         return quad_swap_helpers.GetOrAdd(std::make_pair(func, type), [&] {
-            auto intrinsic = b.Symbols().New("tint_msl_quad_shuffle");
-            thread_index_in_quadgroup = b.Symbols().New("tint_msl_thread_index_in_quadgroup");
-            Symbol quad_swap_helper = b.Symbols().New("tint_msl_quad_swap");
+            Symbol quad_swap_helper = b.Symbols().New(std::string("tint_msl_") + str(func));
+            Symbol intrinsic = GetIntrinsic(type);
 
-            // Declare the `tint_msl_quad_shuffle` function, which will be replaced by the MSL
-            // `quad_shuffle` intrinsic function to perform the swap.
-            {
-                auto* data = b.Param("data", CreateASTTypeFor(ctx, type));
-                auto* quad_lane_id = b.Param("quad_lane_id", b.ty.u32());
-                b.Func(intrinsic, Vector{data, quad_lane_id}, CreateASTTypeFor(ctx, type), nullptr,
-                       Vector{b.ASTNodes().Create<QuadShuffle>(b.ID(), b.AllocateNodeID()),
-                              b.Disable(ast::DisabledValidation::kFunctionHasNoBody)});
-            }
-
-            // Declare the `tint_msl_thread_index_in_quadgroup` variable.
-            b.GlobalVar(thread_index_in_quadgroup, core::AddressSpace::kPrivate, b.ty.u32());
-
-            // Declare the `tint_msl_quad_swap` helper function as follows:
-            //   fn tint_msl_quad_swap(e : T) -> T {
-            //     quad_shuffle(e, tint_msl_thread_index_in_quadgroup ^ rhs)
+            // Declare the `tint_msl_quadSwap*` helper function as follows:
+            //   fn tint_msl_quadSwapFnName(e : T) -> T {
+            //     tint_msl_quad_shuffle(e, tint_msl_thread_index_in_quadgroup ^ rhs)
             //   }
             // where rhs is determined based on the builtin function call:
             // +------------------+------+
@@ -158,10 +149,44 @@ struct QuadSwap::State {
             }
             b.Func(quad_swap_helper, Vector{expr}, CreateASTTypeFor(ctx, type),
                    Vector{
-                       b.Return(b.Call(intrinsic, expr, b.Xor(thread_index_in_quadgroup, rhs))),
+                       b.Return(b.Call(intrinsic, expr, b.Xor(GetGlobalVar(), rhs))),
                    });
             return quad_swap_helper;
         });
+    }
+
+    /// Get or create the `tint_msl_quad_shuffle` intrinsic placeholder function for the given
+    /// return type.
+    /// @returns the name of the function
+    Symbol GetIntrinsic(const core::type::Type* type) {
+        return quad_shuffle_intrinsics.GetOrAdd(type, [&] {
+            auto intrinsic = b.Symbols().New(std::string("tint_msl_quad_shuffle"));
+
+            // Declare the `tint_msl_quad_shuffle` function, which will be replaced by the MSL
+            // `quad_shuffle` intrinsic function to perform the swap.
+            {
+                auto* data = b.Param("data", CreateASTTypeFor(ctx, type));
+                auto* quad_lane_id = b.Param("quad_lane_id", b.ty.u32());
+                b.Func(intrinsic, Vector{data, quad_lane_id}, CreateASTTypeFor(ctx, type), nullptr,
+                       Vector{b.ASTNodes().Create<QuadShuffle>(b.ID(), b.AllocateNodeID()),
+                              b.Disable(ast::DisabledValidation::kFunctionHasNoBody)});
+            }
+
+            return intrinsic;
+        });
+    }
+
+    /// Get or create the `tint_msl_thread_index_in_quadgroup` global variable.
+    /// @returns the name of the variable
+    Symbol GetGlobalVar() {
+        if (!thread_index_in_quadgroup) {
+            thread_index_in_quadgroup = b.Symbols().New("tint_msl_thread_index_in_quadgroup");
+
+            // Declare the `tint_msl_thread_index_in_quadgroup` variable.
+            b.GlobalVar(thread_index_in_quadgroup, core::AddressSpace::kPrivate, b.ty.u32());
+        }
+
+        return thread_index_in_quadgroup;
     }
 
     /// Check if a function directly or transitively calls a `quadSwap*()` builtin.

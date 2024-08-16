@@ -6,12 +6,12 @@ struct tint_private_vars_struct {
 };
 
 
-float3 tint_msl_quad_swap(float3 e, thread tint_private_vars_struct* const tint_private_vars) {
+float3 tint_msl_quadSwapDiagonal(float3 e, thread tint_private_vars_struct* const tint_private_vars) {
   return quad_shuffle(e,((*(tint_private_vars)).tint_msl_thread_index_in_quadgroup ^ 3u));
 }
 
 float3 quadSwapDiagonal_b905fc(thread tint_private_vars_struct* const tint_private_vars) {
-  float3 res = tint_msl_quad_swap(float3(1.0f), tint_private_vars);
+  float3 res = tint_msl_quadSwapDiagonal(float3(1.0f), tint_private_vars);
   return res;
 }
 
