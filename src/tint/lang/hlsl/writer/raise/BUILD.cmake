@@ -63,6 +63,8 @@ tint_add_target(tint_lang_hlsl_writer_raise lib
   lang/hlsl/writer/raise/replace_non_indexable_mat_vec_stores.h
   lang/hlsl/writer/raise/shader_io.cc
   lang/hlsl/writer/raise/shader_io.h
+  lang/hlsl/writer/raise/extract_ternary_values.h
+  lang/hlsl/writer/raise/extract_ternary_values.cc
 )
 
 tint_target_add_dependencies(tint_lang_hlsl_writer_raise lib
@@ -110,6 +112,7 @@ tint_add_target(tint_lang_hlsl_writer_raise_test test
   lang/hlsl/writer/raise/replace_default_only_switch_test.cc
   lang/hlsl/writer/raise/replace_non_indexable_mat_vec_stores_test.cc
   lang/hlsl/writer/raise/shader_io_test.cc
+  lang/hlsl/writer/raise/extract_ternary_values_test.cc
 )
 
 tint_target_add_dependencies(tint_lang_hlsl_writer_raise_test test
