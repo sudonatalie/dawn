@@ -61,6 +61,10 @@ Swizzle::Swizzle(const ast::MemberAccessorExpression* declaration,
 Swizzle::~Swizzle() = default;
 
 Swizzle::Collapsed Swizzle::Collapse() const {
+    if (collapsed_.has_value()) {
+        return collapsed_.value();
+    }
+
     // Initialize with the outermost swizzle object and indices.
     Collapsed res{
         .vector = Object(),
@@ -77,7 +81,9 @@ Swizzle::Collapsed Swizzle::Collapse() const {
         res.indices = std::move(combined);
         res.vector = inner_swizzle->Object();
     }
-    return res;
+    collapsed_ = std::move(res);
+
+    return collapsed_.value();
 }
 
 }  // namespace tint::sem

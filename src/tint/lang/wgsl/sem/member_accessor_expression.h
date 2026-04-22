@@ -28,6 +28,8 @@
 #ifndef SRC_TINT_LANG_WGSL_SEM_MEMBER_ACCESSOR_EXPRESSION_H_
 #define SRC_TINT_LANG_WGSL_SEM_MEMBER_ACCESSOR_EXPRESSION_H_
 
+#include <optional>
+
 #include "src/tint/lang/wgsl/sem/accessor_expression.h"
 #include "src/tint/utils/containers/vector.h"
 
@@ -119,6 +121,9 @@ class Swizzle final : public Castable<Swizzle, AccessorExpression> {
 
   private:
     tint::Vector<uint32_t, 4> const indices_;
+
+    /// Cached Collapsed swizzle result to avoid re-computation.
+    mutable std::optional<Collapsed> collapsed_;
 };
 
 }  // namespace tint::sem
