@@ -1674,17 +1674,20 @@ class UniformityGraph {
                 is_dereferencing =
                     is_dereferencing || sem_.GetVal(m->object)->Type()->Is<core::type::Pointer>();
 
-                // An assignment to a full swizzle view (which updates all elements of a vector) is
-                // a full assignment.
+                // An assignment to a full swizzle view (which updates all components of the object
+                // vector) is a full assignment.
                 bool is_full_swizzle = false;
                 if (auto* swizzle = sem_.Get<sem::Swizzle>(m)) {
+                    // Collapse chained swizzles if necessary.
+                    sem::Swizzle::Collapsed collapsed = swizzle->Collapse();
                     auto* vec_type =
-                        swizzle->Object()->Type()->UnwrapRef()->As<core::type::Vector>();
+                        collapsed.vector->Type()->UnwrapPtrOrRef()->As<core::type::Vector>();
+                    TINT_ASSERT(vec_type);
+
                     // Duplicated elements are not permitted on the LHS of a swizzle assignment, so
                     // comparing lengths is sufficent to determine whether it is a full/partial
                     // swizzle.
-                    TINT_ASSERT(vec_type);
-                    if (swizzle->Indices().Length() == vec_type->Width()) {
+                    if (collapsed.indices.Length() == vec_type->Width()) {
                         is_full_swizzle = true;
                     }
                 }

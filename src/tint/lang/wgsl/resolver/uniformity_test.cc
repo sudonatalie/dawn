@@ -7949,6 +7949,23 @@ fn foo() {
     RunTest(src, true);
 }
 
+TEST_F(UniformityAnalysisTest, VectorSwizzleAssignment_Chained_FullSwizzle_UniformPromotion) {
+    std::string src = R"(
+@group(0) @binding(0) var<storage, read_write> v_rw : vec3<i32>;
+@group(0) @binding(1) var<storage> v_u : vec3<i32>;
+
+fn foo() {
+  var x = v_rw;
+  x.xyz.yxz = v_u;
+  if (x.x == 0) {
+    workgroupBarrier();
+  }
+}
+)";
+
+    RunTest(src, true);
+}
+
 TEST_F(UniformityAnalysisTest, VectorSwizzleAssignment_PartialSwizzle_NoUniformPromotion) {
     std::string src = R"(
 @group(0) @binding(0) var<storage, read_write> v_rw : vec3<i32>;
