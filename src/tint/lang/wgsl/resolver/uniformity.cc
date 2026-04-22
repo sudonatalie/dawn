@@ -1679,7 +1679,7 @@ class UniformityGraph {
                 bool is_full_swizzle = false;
                 if (auto* swizzle = sem_.Get<sem::Swizzle>(m)) {
                     // Collapse chained swizzles if necessary.
-                    sem::Swizzle::Collapsed collapsed = swizzle->Collapse();
+                    sem::CollapsedSwizzle collapsed = sem::CollapseLhsSwizzle(swizzle);
                     auto* vec_type =
                         collapsed.vector->Type()->UnwrapPtrOrRef()->As<core::type::Vector>();
                     TINT_ASSERT(vec_type);

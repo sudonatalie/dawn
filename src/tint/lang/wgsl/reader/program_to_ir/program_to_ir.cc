@@ -447,7 +447,7 @@ class Impl {
         auto b = builder_.Append(current_block_);
         const auto* sem_swizzle = program_.Sem().Get<sem::Swizzle>(stmt->lhs);
         if (sem_swizzle) {
-            sem::Swizzle::Collapsed swizzle = sem_swizzle->Collapse();
+            sem::CollapsedSwizzle swizzle = sem::CollapseLhsSwizzle(sem_swizzle);
             // Evaluate pointer to swizzled vector.
             auto lhs_vec_ptr = EmitValueExpression(swizzle.vector->Declaration());
             auto* rhs_val = EmitValueExpression(stmt->rhs);
@@ -492,7 +492,7 @@ class Impl {
         if (sem_swizzle && sem_swizzle->Type()->Is<core::type::SwizzleView>()) {
             auto b = builder_.Append(current_block_);
 
-            sem::Swizzle::Collapsed swizzle = sem_swizzle->Collapse();
+            sem::CollapsedSwizzle swizzle = sem::CollapseLhsSwizzle(sem_swizzle);
             auto* lhs_vec_ptr = EmitValueExpression(swizzle.vector->Declaration());
             auto* lhs_ty = sem_swizzle->Type()->As<core::type::SwizzleView>()->StoreType();
 

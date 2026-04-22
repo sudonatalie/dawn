@@ -28,8 +28,6 @@
 #ifndef SRC_TINT_LANG_WGSL_SEM_MEMBER_ACCESSOR_EXPRESSION_H_
 #define SRC_TINT_LANG_WGSL_SEM_MEMBER_ACCESSOR_EXPRESSION_H_
 
-#include <optional>
-
 #include "src/tint/lang/wgsl/sem/accessor_expression.h"
 #include "src/tint/utils/containers/vector.h"
 
@@ -100,31 +98,28 @@ class Swizzle final : public Castable<Swizzle, AccessorExpression> {
     /// @return the swizzle indices, if this is a vector swizzle
     const auto& Indices() const { return indices_; }
 
-    /// Struct that holds the base vector and the collapsed indices of a (potentially nested)
-    /// swizzle.
-    struct Collapsed {
-        /// The base vector expression node
-        const sem::ValueExpression* vector = nullptr;
-        /// The collapsed swizzle indices
-        tint::Vector<uint32_t, 4> indices;
-    };
-
-    /// Collapse a possibly nested chain of swizzles into a single set of swizzle indices on the
-    /// base vector.
-    ///
-    /// Note that target components cannot be repeated in lhs swizzles used for assignment,
-    /// so each consecutive swizzle on a vector will produce a smaller or equal sized vector (i.e.
-    /// v.xyzw.xy.yx.x).
-    ///
-    /// @returns the collapsed swizzle
-    Collapsed Collapse() const;
-
   private:
     tint::Vector<uint32_t, 4> const indices_;
-
-    /// Cached Collapsed swizzle result to avoid re-computation.
-    mutable std::optional<Collapsed> collapsed_;
 };
+
+/// Holds the base vector and collapsed indices of a potentially chained swizzle.
+struct CollapsedSwizzle {
+    /// The base vector expression
+    const ValueExpression* vector = nullptr;
+    /// The collapsed swizzle indices
+    tint::Vector<uint32_t, 4> indices;
+};
+
+/// Collapse a possibly nested chain of swizzles on the lhs of an assignment into a single set of
+/// swizzle indices on the base vector.
+///
+/// Note that target components cannot be repeated in lhs swizzles used for assignment,
+/// so each consecutive swizzle on a vector will produce a smaller or equal sized vector (i.e.
+/// v.xyzw.xy.yx.x).
+///
+/// @param swizzle the outermost swizzle node
+/// @returns the collapsed swizzle
+CollapsedSwizzle CollapseLhsSwizzle(const Swizzle* swizzle);
 
 }  // namespace tint::sem
 
