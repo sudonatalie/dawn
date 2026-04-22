@@ -1685,7 +1685,7 @@ class UniformityGraph {
                     TINT_ASSERT(vec_type);
 
                     // Duplicated elements are not permitted on the LHS of a swizzle assignment, so
-                    // comparing lengths is sufficent to determine whether it is a full/partial
+                    // comparing lengths is sufficient to determine whether it is a full/partial
                     // swizzle.
                     if (collapsed.indices.Length() == vec_type->Width()) {
                         is_full_swizzle = true;
