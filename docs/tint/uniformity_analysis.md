@@ -4,23 +4,23 @@ This document provides a high-level overview of Uniformity Analysis in Tint. It 
 
 ## What is Uniformity?
 
-In GPU programming, "uniformity" refers to whether a value is guaranteed to be the same across all threads in a specific threadgroup, like a quad, subgroup or workgroup. There are 2 concepts necessary to understand the analysis of uniformity of a WebGPU program: uniform values and uniform control flow.
+In GPU programming, "uniformity" refers to whether a value is guaranteed to be the same across all threads executed in a group, like a workgroup, subgroup or quad. There are two concepts necessary to understand the analysis of uniformity of a WebGPU program: uniform values and uniform control flow.
 
 ### Values
 
-**Uniform Value**: For a given value in a GPU program, if every thread in the threadgroup sees the same value, that value is considered **uniform**. Examples include static constants or values from a `uniform` buffer.
+**Uniform Value**: For a given value in a GPU program, if every thread in the workgroup sees the same value, that value is considered **uniform**. Examples include static constants or values from a `uniform` buffer.
 
-**Non-Uniform Value**: If different threads may see different values, that value is considered **non-uniform**. Examples include `@builtin(local_invocation_id)`, texture samples, or values from a `read_write` storage buffer.
+**Non-Uniform Value**: If different threads may see different values, that value is considered **non-uniform**. Examples include `@builtin(local_invocation_id)`, a `textureLoad()` from a non-uniform index, or values from a `read_write` storage buffer.
 
 ### Control Flow
 
-**Uniform Control Flow**: If every thread in the threadgroup is guaranteed to be executing the same statement at the same time, the control flow is **uniform**.
+**Uniform Control Flow**: If every thread in the workgroup is guaranteed to be executing the same statement at the same time, the control flow is **uniform**.
 
 **Non-Uniform Control Flow**: If different threads may be executing different statements, the control flow is **non-uniform**. For example, inside an `if` block where the condition was based on a non-uniform value like the thread id. Some GPU operations, like barriers, must only be executed in uniform control flow.
 
 ## What is Uniformity Analysis?
 
-**Uniformity Analysis** is a static compiler pass that proves that certain operations are performed in uniform control flow. If it cannot prove that uniformity is maintained everywhere that uniformity is required, it will cause compilation to fail. By necessity, it is a conservative compile-time analysis, meaning it will produce "false negatives" by rejecting WGSL that would actually be safe at runtime, but it errs on the side of caution to ensure that all accepted shaders are reasonably guaranteed to be safe and correct.
+**Uniformity Analysis** is a static compiler pass that proves that certain operations are performed in uniform control flow. If it cannot prove that uniformity is maintained everywhere that uniformity is required, it will result in a compilation error. By necessity, it is a conservative compile-time analysis, meaning it will produce false negatives by rejecting WGSL that would actually be uniform at runtime, but it errs on the side of caution to ensure that all accepted shaders are reasonably guaranteed to be safe and correct.
 
 ### Why do we need it?
 
