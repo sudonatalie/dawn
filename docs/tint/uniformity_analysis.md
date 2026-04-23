@@ -16,11 +16,11 @@ In GPU programming, "uniformity" refers to whether a value is guaranteed to be t
 
 **Uniform Control Flow**: If every thread in the threadgroup is guaranteed to be executing the same statement at the same time, the control flow is **uniform**.
 
-**Non-Uniform Control Flow**: If different threads may be are executing different statements, the control flow is **non-uniform**. For example, inside an `if` block where the condition was based on a non-uniform value like the thread id. Some GPU operations, like barriers, must only be executed in uniform control flow.
+**Non-Uniform Control Flow**: If different threads may be executing different statements, the control flow is **non-uniform**. For example, inside an `if` block where the condition was based on a non-uniform value like the thread id. Some GPU operations, like barriers, must only be executed in uniform control flow.
 
 ## What is Uniformity Analysis?
 
-**Uniformity Analysis** is a static compiler pass that proves whether certain operations are performed in uniform control flow.
+**Uniformity Analysis** is a static compiler pass that proves that certain operations are performed in uniform control flow. If it cannot prove that uniformity is maintained everywhere that uniformity is required, it will cause compilation to fail. By necessity, it is a conservative compile-time analysis, meaning it will produce "false negatives" by rejecting WGSL that would actually be safe at runtime, but it errs on the side of caution to ensure that all accepted shaders are reasonably guaranteed to be safe and correct.
 
 ### Why do we need it?
 
@@ -59,7 +59,7 @@ In the example above, `local_id` is a non-uniform value, represented by the edge
 **Dependency Graph (Tint)**:
 ![Dependency Graph](uniformity_examples/dependency.svg)
 
-You can think of non-uniformity like an "infection". If you reversed the direction of all edges in the graph, it would represent the pathways through which the non-uniformity infecction spreads. For illustration purposes, the arrows are reversed in the graph below and infected nodes are highlighted in red, showing how the `MayBeNonUniform` infection spreads from `local_id`, to `n`, to `binary_expr_result`.
+You can think of non-uniformity like an "infection". If you reversed the direction of all edges in the graph, it would represent the pathways through which the non-uniformity infection spreads. For illustration purposes, the arrows are reversed in the graph below and infected nodes are highlighted in red, showing how the `MayBeNonUniform` infection spreads from `local_id`, to `n`, to `binary_expr_result`.
 
 **Infection Flow**:
 ![Infection Graph](uniformity_examples/infection.svg)
@@ -123,7 +123,7 @@ In the graph below, note that the `main.RequiredToBeUniform_Error` node **can** 
 
 ## How to Generate Diagrams
 
-Tint has a built-in feature to dump the dependency graph as a Graphviz (DOT) file, which was used the generate the example diagrams in this doc.
+Tint has a built-in feature to dump the dependency graph as a Graphviz (DOT) file, which was used to generate the example diagrams in this doc.
 
 To generate these diagrams yourself to help understand the analysis, follow these steps:
 
