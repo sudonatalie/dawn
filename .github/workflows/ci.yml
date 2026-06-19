@@ -207,10 +207,18 @@ jobs:
             -DDAWN_ENABLE_D3D11=OFF \
             -DDAWN_ENABLE_OPENGLES=OFF \
             -DDAWN_ENABLE_DESKTOP_GL=OFF \
+            -DDAWN_ENABLE_NULL=OFF \
+            -DDAWN_USE_X11=OFF \
+            -DDAWN_USE_WAYLAND=OFF \
             -DDAWN_USE_GLFW=OFF \
+            -DDAWN_BUILD_TESTS=OFF \
             -DTINT_BUILD_CMD_TOOLS=OFF \
             -DTINT_BUILD_DOCS=OFF \
             -DTINT_BUILD_TESTS=OFF \
+            -DTINT_BUILD_WGSL_READER=OFF \
+            -DTINT_BUILD_WGSL_WRITER=OFF \
+            -DTINT_BUILD_GLSL_VALIDATOR=OFF \
+            -DTINT_BUILD_IR_BINARY=OFF \
             -DCMAKE_BUILD_TYPE=Release
           cmake --build out/host --target protoc
 
@@ -308,10 +316,18 @@ jobs:
             -DDAWN_ENABLE_D3D11=OFF \
             -DDAWN_ENABLE_OPENGLES=OFF \
             -DDAWN_ENABLE_DESKTOP_GL=OFF \
+            -DDAWN_ENABLE_NULL=OFF \
+            -DDAWN_USE_X11=OFF \
+            -DDAWN_USE_WAYLAND=OFF \
             -DDAWN_USE_GLFW=OFF \
+            -DDAWN_BUILD_TESTS=OFF \
             -DTINT_BUILD_CMD_TOOLS=OFF \
             -DTINT_BUILD_DOCS=OFF \
             -DTINT_BUILD_TESTS=OFF \
+            -DTINT_BUILD_WGSL_READER=OFF \
+            -DTINT_BUILD_WGSL_WRITER=OFF \
+            -DTINT_BUILD_GLSL_VALIDATOR=OFF \
+            -DTINT_BUILD_IR_BINARY=OFF \
             -DCMAKE_BUILD_TYPE=Release
           cmake --build out/host --target protoc
 
