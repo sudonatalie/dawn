@@ -197,7 +197,21 @@ jobs:
 
       - name: Build host protoc
         run: |
-          cmake -S . -B out/host -DDAWN_BUILD_PROTOBUF=ON -DCMAKE_BUILD_TYPE=Release
+          cmake -G Ninja -S . -B out/host \
+            -DDAWN_BUILD_PROTOBUF=ON \
+            -DDAWN_BUILD_SAMPLES=OFF \
+            -DDAWN_BUILD_NODE=OFF \
+            -DDAWN_ENABLE_VULKAN=OFF \
+            -DDAWN_ENABLE_METAL=OFF \
+            -DDAWN_ENABLE_D3D12=OFF \
+            -DDAWN_ENABLE_D3D11=OFF \
+            -DDAWN_ENABLE_OPENGLES=OFF \
+            -DDAWN_ENABLE_DESKTOP_GL=OFF \
+            -DDAWN_USE_GLFW=OFF \
+            -DTINT_BUILD_CMD_TOOLS=OFF \
+            -DTINT_BUILD_DOCS=OFF \
+            -DTINT_BUILD_TESTS=OFF \
+            -DCMAKE_BUILD_TYPE=Release
           cmake --build out/host --target protoc
 
       - name: Build android ${{ matrix.arch }}
@@ -208,7 +222,7 @@ jobs:
             -DCMAKE_TOOLCHAIN_FILE=${{ matrix.toolchain_file }} \
             ${{ matrix.cmake_args }} \
             -DCMAKE_BUILD_TYPE=Release \
-            -DPROTOC_EXECUTABLE=$PWD/out/host/third_party/protobuf/protoc
+            -DPROTOC_EXECUTABLE=$PWD/out/host/protoc
           ninja -C ${{ matrix.output_dir }}
 
       - name: Strip debug symbols
@@ -284,7 +298,21 @@ jobs:
 
       - name: Build host protoc
         run: |
-          cmake -S . -B out/host -DDAWN_BUILD_PROTOBUF=ON -DCMAKE_BUILD_TYPE=Release
+          cmake -G Ninja -S . -B out/host \
+            -DDAWN_BUILD_PROTOBUF=ON \
+            -DDAWN_BUILD_SAMPLES=OFF \
+            -DDAWN_BUILD_NODE=OFF \
+            -DDAWN_ENABLE_VULKAN=OFF \
+            -DDAWN_ENABLE_METAL=OFF \
+            -DDAWN_ENABLE_D3D12=OFF \
+            -DDAWN_ENABLE_D3D11=OFF \
+            -DDAWN_ENABLE_OPENGLES=OFF \
+            -DDAWN_ENABLE_DESKTOP_GL=OFF \
+            -DDAWN_USE_GLFW=OFF \
+            -DTINT_BUILD_CMD_TOOLS=OFF \
+            -DTINT_BUILD_DOCS=OFF \
+            -DTINT_BUILD_TESTS=OFF \
+            -DCMAKE_BUILD_TYPE=Release
           cmake --build out/host --target protoc
 
       - name: Build ${{ matrix.platform }} ${{ matrix.arch }}
@@ -295,7 +323,7 @@ jobs:
             -DCMAKE_TOOLCHAIN_FILE=${{ matrix.toolchain_file }} \
             ${{ matrix.cmake_args }} \
             -DCMAKE_BUILD_TYPE=Release \
-            -DPROTOC_EXECUTABLE=$PWD/out/host/third_party/protobuf/protoc
+            -DPROTOC_EXECUTABLE=$PWD/out/host/protoc
           ninja -C ${{ matrix.output_dir }}
 
       - name: Upload build artifacts
