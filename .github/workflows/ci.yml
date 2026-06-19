@@ -117,7 +117,7 @@ jobs:
       - name: Set up dependencies on linux
         if: matrix.container.image == 'dockcross/manylinux_2_28-x64:latest'
         run: >
-          dnf install -y mesa-libGL-devel libxcb libxcb-devel libX11-xcb libXcursor-devel libXrandr-devel libXinerama-devel libXi-devel libXext-devel libxkbcommon libxkbcommon-devel libxkbcommon-x11-devel mesa-vulkan-drivers wayland-protocols-devel wayland-devel protobuf-compiler
+          dnf install -y mesa-libGL-devel libxcb libxcb-devel libX11-xcb libXcursor-devel libXrandr-devel libXinerama-devel libXi-devel libXext-devel libxkbcommon libxkbcommon-devel libxkbcommon-x11-devel mesa-vulkan-drivers wayland-protocols-devel wayland-devel
 
       - name: Set up sccache
         # dawn-ci.cmake documents why sccache is not used in other platforms.
@@ -194,6 +194,9 @@ jobs:
 
       - name: Set ANDROID_NDK
         run: echo "ANDROID_NDK=${{ steps.setup-ndk.outputs.ndk-path }}" >> $GITHUB_ENV
+
+      - name: Install host protoc
+        run: sudo apt-get update && sudo apt-get install -y protobuf-compiler
 
       - name: Build android ${{ matrix.arch }}
         run: |
@@ -276,6 +279,9 @@ jobs:
           mkdir -p build-tools
           # Download the ios-cmake toolchain file
           curl -L https://raw.githubusercontent.com/leetal/ios-cmake/6fa909e133b92343db2d099e0478448c05ffec1a/ios.toolchain.cmake -o build-tools/apple.toolchain.cmake
+
+      - name: Install host protoc
+        run: brew install protobuf
 
       - name: Build ${{ matrix.platform }} ${{ matrix.arch }}
         run: |
