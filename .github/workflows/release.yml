@@ -6,7 +6,7 @@ on:
     - cron: '50 5 * * 2-6'  # 05:50 UTC, Tue-Sat morning (21:50 PST / 22:50 PDT Mon-Fri night)
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build-wasm:
@@ -33,11 +33,12 @@ jobs:
 
   build-native:
     uses: ./.github/workflows/ci.yml
-    secrets: inherit
 
   publish:
     needs: [build-wasm, build-native]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Download All Artifacts
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
@@ -50,14 +51,15 @@ jobs:
           ls -R artifacts
 
       - name: Upload to GitHub Release
-        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
-        with:
-          tag_name: ${{ needs.build-wasm.outputs.PKG_VERSION }}
-          name: ${{ needs.build-wasm.outputs.PKG_VERSION }}
-          body_path: RELEASE_INFO.md
-          files: |
-            artifacts/**/Dawn-*.tar.gz
-            artifacts/**/dawn-android-*.tar.gz
-            artifacts/**/dawn-apple-*.xcframework.tar.gz
-            artifacts/**/dawn-headers-*.tar.gz
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ needs.build-wasm.outputs.PKG_VERSION }}
+        run: |
+          gh release create "$TAG_NAME" \
+            --title "$TAG_NAME" \
+            --notes-file RELEASE_INFO.md \
+            artifacts/Dawn-*/Dawn-*.tar.gz \
+            artifacts/dawn-android-*/dawn-android-*.tar.gz \
+            artifacts/dawn-apple-*/dawn-apple-*.xcframework.tar.gz \
+            artifacts/dawn-headers-*/dawn-headers-*.tar.gz \
             artifacts/emdawnwebgpu/*
